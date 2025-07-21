@@ -14,7 +14,7 @@ resp.vector_buckets.each do |bucket|
     max_results: 10
   })
 
-  indexes.each do |i|
+  indexes.indexes.each do |i|
     puts "  Index: #{i.index_name}"
   end
 end
