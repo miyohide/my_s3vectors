@@ -1,30 +1,51 @@
 require 'aws-sdk-s3vectors'
 
-client = Aws::S3Vectors::Client.new(region: 'us-east-1')
+class S3VectorsBrowser
+  def initialize(region: 'us-east-1')
+    @client = Aws::S3Vectors::Client.new(region: region)
+  end
 
-resp = client.list_vector_buckets({max_results: 10})
+  def list_all_resources(max_results: 10)
+    list_buckets(max_results).each do |bucket|
+      print_bucket_info(bucket)
+      list_indexes(bucket.vector_bucket_name, max_results).each do |index|
+        print_index_info(index, bucket.vector_bucket_name, max_results)
+      end
+    end
+  end
 
-# respに格納されているS3 VectorsバケットにあるIndexを出力する
-resp.vector_buckets.each do |bucket|
-  vector_bucket_name = bucket.vector_bucket_name
-  puts "S3 Vector buckets #{vector_bucket_name}"
+  private
 
-  indexes = client.list_indexes({
-    vector_bucket_name: vector_bucket_name,
-    max_results: 10
-  })
+  def list_buckets(max_results)
+    @client.list_vector_buckets(max_results: max_results).vector_buckets
+  end
 
-  indexes.indexes.each do |i|
-    puts "  Index: #{i.index_name}"
+  def list_indexes(bucket_name, max_results)
+    @client.list_indexes(
+      vector_bucket_name: bucket_name,
+      max_results: max_results
+    ).indexes
+  end
 
-    vectors_res = client.list_vectors({
-      vector_bucket_name: vector_bucket_name,
-      index_name: i.index_name,
-      max_results: 10
-    })
+  def list_vectors(bucket_name, index_name, max_results)
+    @client.list_vectors(
+      vector_bucket_name: bucket_name,
+      index_name: index_name,
+      max_results: max_results
+    ).vectors
+  end
 
-    vectors_res.vectors.each do |v|
-      puts "    Vector: #{v.vector_name}"
+  def print_bucket_info(bucket)
+    puts "S3 Vector buckets #{bucket.vector_bucket_name}"
+  end
+
+  def print_index_info(index, bucket_name, max_results)
+    puts "  Index: #{index.index_name}"
+    list_vectors(bucket_name, index.index_name, max_results).each do |vector|
+      puts "    Vector: #{vector.vector_name}"
     end
   end
 end
+
+browser = S3VectorsBrowser.new
+browser.list_all_resources
