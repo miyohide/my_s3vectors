@@ -16,5 +16,15 @@ resp.vector_buckets.each do |bucket|
 
   indexes.indexes.each do |i|
     puts "  Index: #{i.index_name}"
+
+    vectors_res = client.list_vectors({
+      vector_bucket_name: vector_bucket_name,
+      index_name: i.index_name,
+      max_results: 10
+    })
+
+    vectors_res.vectors.each do |v|
+      puts "    Vector: #{v.vector_name}"
+    end
   end
 end
