@@ -48,7 +48,9 @@ class S3VectorsBrowser
     @client.list_vectors(
       vector_bucket_name: bucket_name,
       index_name: index_name,
-      max_results: max_results
+      max_results: max_results,
+      return_data: true,
+      return_metadata: true
     ).vectors
   end
 
