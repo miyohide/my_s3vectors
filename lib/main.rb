@@ -65,7 +65,7 @@ class S3VectorsBrowser
   def print_index_info(index, bucket_name, max_results)
     puts "  Index: #{index.index_name}"
     list_vectors(bucket_name, index.index_name, max_results).each do |vector|
-      puts "    Vector: #{vector.vector_name}"
+      puts "    Vector: key = [#{vector.key}], data = [#{vector.data}]"
     end
   end
 end
